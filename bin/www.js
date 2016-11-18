@@ -2,30 +2,9 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+let app = require('../app');
 var debug = require('debug')('coin:server');
 var http = require('http');
-var mongoose = require('mongoose');
-var config = require('../config');
-
-/**
- * connect to mongo lab
- */
-mongoose.connect(config.dbURL);
-
-var db = mongoose.connection;
-
-db.once('open', () => {
-  var kittySchema = mongoose.Schema({
-    name: String
-  });
-  
-  var Kitten = mongoose.model('Kitten', kittySchema);
-  var silence = new Kitten({ name: 'Silence' });
-  silence.save((err, silence) => {
-    debugger;
-  })
-});
 
 /**
  * Get port from environment and store in Express.

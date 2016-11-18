@@ -3,3 +3,9 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  
+  h1 #{username}
+  
+  a(href='/login') Login
+  a(href='/register') Register
+  a(href='/logout') Logout
