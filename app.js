@@ -3,16 +3,21 @@ let path = require('path');
 let favicon = require('serve-favicon');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
+let mongoose = require('mongoose');
 let bodyParser = require('body-parser');
 let passport = require('passport');
+let flash = require('express-flash');
 let session = require('express-session');
-let LocalStrategy = require('passport-local').Strategy;
+const dbURL = require('./config/db.json').dbURL;
 let app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// uncomment after placing your favicon in /public
+mongoose.connect(dbURL);
+let db = mongoose.connection;
+
+//uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev')); // log every request to the console
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,14 +29,15 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+app.use(flash());
 
 // init passport settings and strategies
 require('./config/passport')(app);
 
-
+app.use('/', require('./routes/main'));
 app.use('/auth', require('./routes/auth.js'));
 
-// error handlers
+/*  error handlers  */
 
 // production error handler
 // no stacktraces leaked to user
@@ -41,6 +47,13 @@ app.use(function (err, req, res, next) {
         message: err.message,
         error: {}
     });
+});
+
+
+// subscribing on mongoose events
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('we are connected');
 });
 
 module.exports = app;

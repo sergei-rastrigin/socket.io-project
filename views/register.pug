@@ -1,6 +1,9 @@
 h1 Signup
 
-form(action='/register',method='post')
+form(action='/auth/register',method='post')
     input(type='text',name='username',placeholder='type your email')
     input(type='text',name='password',placeholder='type your password')
     input(type='submit')
+    
+- if (messages && messages.error)
+    .message= messages.error

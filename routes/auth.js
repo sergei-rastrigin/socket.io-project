@@ -1,39 +1,61 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const User = require('../models/user');
+const passport = require('passport');
 const authRouter = express.Router();
+const validator = require('email-validator');
+
+authRouter
+    .route('/register')
+    .get((req, res) => {
+        res.render('register');
+    })
+    .post((req, res) => {
+        let isEmailValid = validator.validate(req.body.username);
+        
+        if (isEmailValid) {
+            registerUser(req, res);    
+        } else {
+            req.flash('error', 'your email is not valid');
+            res.render('register');
+        }
+        
+    });
+    
+function registerUser(req, res) {
+    User.register(new User({
+                username: req.body.username
+            }), req.body.password,
+            (err, user) => {
+                if (err) {
+                    req.flash('error', err.message);
+                    res.redirect('register');
+                }
+
+                passport.authenticate('local')(req, res, () => {
+                    res.redirect('/');
+                });
+            });
+}
 
 authRouter
     .route('/login')
     .get((req, res) => {
-        res.render('login');
+        if (req.user) {
+            res.redirect('/');
+        } else {
+            res.render('login');    
+        }
     })
-    .post((req, res) => {
-        const dbConfig = require('../config/db.json');
-        const dbURL = dbConfig.dbURL;
-        mongoose.connect(dbURL, (err, db) => {
-            if (err) {
-                throw new Error(err.message);
-            }
-            let collection = db.collection('users');
-            let user = {
-                username: req.body.username,
-                password: req.body.password
-            };
-
-            collection.insert(user, (err, results) => {
-                req.login(results, () => {
-                    res.redirect('profile');
-                })
-            });
-        });
-    });
+    .post(passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: '/auth/login',
+        failureFlash: true
+    }));
 
 authRouter
     .route('/profile')
     .get((req, res) => {
-        console.log(req.user);
         res.json(req.user);
-    })
+    });
 
 module.exports = authRouter;
-

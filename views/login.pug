@@ -6,3 +6,6 @@ form(action='/auth/login',method='post')
     input(type='text', name='password')
     label(for='password') Password
     input(type='submit', value='Login')
+    
+- if (messages && messages.error)
+    .message= messages.error
