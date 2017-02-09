@@ -8,10 +8,10 @@ let bodyParser = require('body-parser');
 let passport = require('passport');
 let flash = require('express-flash');
 let session = require('express-session');
-const dbURL = require('./config/db.json').dbURL;
+const dbURL = require('./src/config/db.json').dbURL;
 let app = express();
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'src', 'views'));
 app.set('view engine', 'pug');
 
 mongoose.connect(dbURL);
@@ -32,10 +32,10 @@ app.use(session({
 app.use(flash());
 
 // init passport settings and strategies
-require('./config/passport')(app);
+require('./src/config/passport')(app);
 
-app.use('/', require('./routes/main'));
-app.use('/auth', require('./routes/auth.js'));
+app.use('/', require('./src/routes/index'));
+app.use('/auth', require('./src/routes/auth'));
 
 /*  error handlers  */
 
